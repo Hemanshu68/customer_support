@@ -1,9 +1,11 @@
 import { Container, List, ListSubheader, Paper } from "@mui/material";
+import { useState } from "react";
 import { FAQObject, FAQS, text } from "../assets/constants";
 import MyListItem from "./ListItem";
 
 
 const Home = () => {
+    const [open, setOpen] = useState<boolean>(false);
     return (
         <Container maxWidth={false} sx={{ padding: '1%' }}>
             <Paper component='div' style={{ textAlign: 'center' }} elevation={0}>
@@ -11,6 +13,7 @@ const Home = () => {
                 <br />
                 <b>{text}</b>
             </Paper>
+
             <Container maxWidth='md' sx={{ display: 'flex', justifyContent: 'left', padding: '1%', flexDirection: 'column' }} >
                 <List
 
@@ -34,4 +37,4 @@ const Home = () => {
     );
 }
 
-export default Home
+export default Home;

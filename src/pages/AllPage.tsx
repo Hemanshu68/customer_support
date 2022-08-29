@@ -1,8 +1,9 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
-import React from "react";
+import { Box, Button, CssBaseline, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { ChangeEvent, useEffect, useState } from "react";
 import { data, Tdata } from "../assets/constants";
-
-
+import { useCookies } from 'react-cookie'
+import { Link } from 'react-router-dom'
+import { API } from "./API";
 
 
 interface Column {
@@ -53,18 +54,57 @@ const columns: readonly Column[] = [
 const rows: Tdata[] = data;
 
 const AllPage = () => {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+    const [rows, setRows] = useState<Tdata[]>([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [cookie, setCookie, removeCookie] = useCookies(['cs-cookie'])
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const user = (localStorage.getItem('user'));
+    const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
 
+
+    const getTickets = async () => {
+        try {
+            const res = await API.get('/ticket/all', {
+                headers: { "Authorization": `Bearer ${cookie['cs-cookie']}` }
+            });
+            setRows(res.data[0])
+        }
+        catch (err) {
+            console.error(err)
+        }
+    }
+
+    useEffect(() => {
+        if (user)
+            getTickets();
+        if (!user) {
+            setRows([])
+        }
+    }, [])
+
+    if (!user) {
+        return (
+            <>
+                <CssBaseline />
+                <Box sx={{ flexGrow: 1, margin: "0", padding: '0', bgcolor: 'white' }}>
+                    <Paper sx={{ maxWidth: '50%', margin: '5% auto', textAlign: 'center', padding: '1%' }}>
+                        <Typography>You are not logged in!</Typography>
+                        <br />
+                        <Typography>Click below to proceed Login</Typography>
+                        <br />
+                        <Button component={Link} to='/login' variant="contained" type="button"> Log In</Button>
+                    </Paper>
+
+                </Box>
+            </>
+        )
+    }
     return (
         <Paper sx={{ padding: '2rem 0', height: 'fir-content', minHeight: '100%' }}>
             <TableContainer component={Paper} sx={{ width: "70%", margin: '0 auto', overflow: 'hidden' }}>
